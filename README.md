@@ -28,20 +28,21 @@
 - **理法优先：** 将月建、日辰、旺衰、生克、冲合和动变放在同一证据链中判断。
 - **先核后断：** 六爻按初爻至上爻自下而上读取，图片不清时不静默补全。
 - **分层取象：** 六神、六亲、爻位和卦象只作为理法基础上的辅助信息。
-- **按需参考：** 将方法、旺衰、关系应期和象法拆分到 `references/`，避免每次加载整份资料。
+- **按需参考：** 将方法、旺衰、关系应期和象法拆分到 `references/`，并通过 `source-index.md` 按关键词回查 `sources/` 原始资料，避免每次加载整套全文。
 - **一卦一事：** 原卦问的是关系、工作或近况时，追问财运等新主题应明确区分旁断与重新起卦。
 - **现实边界：** 不通过卦象访问或验证社交、医疗、金融、法律等现实系统。
 
 ## 项目状态
 
-当前版本是一个文档型 Skill 包，包含入口规则、专题参考、脱敏示例和行为验证场景。
+当前版本是一个文档型 Skill 包，包含入口规则、专题参考、脱敏示例、行为验证场景和三本可检索的 OCR 原始资料。
 
 当前不包含：
 
 - 六爻排盘算法或历法换算器。
 - 截图 OCR 程序。
 - 自动访问社交平台、定位、医疗、金融或法律系统的功能。
-- 三本 OCR 资料的完整复制品。
+
+三本 OCR 原文位于 `sources/`，只在需要原文核对、补充专题或用户要求查看资料依据时按关键词读取，不作为每次解读的默认上下文。
 
 ## 快速开始
 
@@ -109,9 +110,16 @@ Skill 的发现入口是根目录的 `SKILL.md`，`agents/openai.yaml` 提供面
 | [`references/strength-useful-god.md`](references/strength-useful-god.md) | 用神、六亲、旺衰和问事类型 |
 | [`references/relations-and-timing.md`](references/relations-and-timing.md) | 动变、冲合刑害、旬空、伏神和应期 |
 | [`references/xiangfa-reference.md`](references/xiangfa-reference.md) | 六神、六亲、爻位和卦象的辅助取象 |
-| [`references/source-index.md`](references/source-index.md) | 三本本地 OCR 资料的主题索引与检索边界 |
+| [`references/source-index.md`](references/source-index.md) | 三本 OCR 资料的主题索引与检索边界 |
+| [`sources/README.md`](sources/README.md) | 原始 OCR 文件说明与按需读取原则 |
 
-仓库只保存从原始资料中提炼的短参考，不分发用户本地 OCR 原文。OCR 存在错字、断句和术语识别风险，遇到歧义时以完整盘面、一致性核对和谨慎表达为先。
+仓库同时保存精炼参考和三本原始 OCR 文件。精炼参考用于默认分析，原始 OCR 用于按需核对和扩展；OCR 可能存在错字、断句和术语识别风险，遇到歧义时以完整盘面、一致性核对和谨慎表达为先。
+
+原始资料：
+
+- [`六爻理法进阶_OCR纯文本.txt`](sources/六爻理法进阶_OCR纯文本.txt)
+- [`六爻象法进阶上_OCR纯文本.txt`](sources/六爻象法进阶上_OCR纯文本.txt)
+- [`六爻象法进阶下_OCR纯文本.txt`](sources/六爻象法进阶下_OCR纯文本.txt)
 
 ## 仓库结构
 
@@ -126,10 +134,14 @@ chinese-liuyao-skill/
 │  ├─ relations-and-timing.md       # 动变与应期
 │  ├─ xiangfa-reference.md          # 象法参考
 │  └─ source-index.md               # 来源索引
+├─ sources/
+│  ├─ 六爻理法进阶_OCR纯文本.txt     # 理法原始 OCR
+│  ├─ 六爻象法进阶上_OCR纯文本.txt   # 象法原始 OCR（上）
+│  ├─ 六爻象法进阶下_OCR纯文本.txt   # 象法原始 OCR（下）
+│  └─ README.md                     # 原始资料读取说明
 ├─ examples/
 │  ├─ relationship-reading.md       # 脱敏关系盘例
 │  └─ behavior-cases.md             # 行为验证场景
-└─ docs/superpowers/                # 设计与实现记录
 ```
 
 ## 边界与安全
@@ -153,7 +165,7 @@ python -X utf8 path/to/skill-creator/scripts/quick_validate.py .
 git diff --check
 ```
 
-提交修改时，请保持参考资料与入口规则一致，不要把整本 OCR 文件、私人盘面或未经核对的绝对断语加入仓库。
+提交修改时，请保持参考资料与入口规则一致，不要加入未授权文本、私人盘面或未经核对的绝对断语；对仓库内 OCR 的新增检索词和结论要标注 OCR 不确定性。
 
 ## 贡献
 
@@ -162,4 +174,4 @@ git diff --check
 1. 说明适用的问事类型或行为场景。
 2. 将理法依据与象法补充分开，并标注流派差异或数据缺失。
 3. 不把单一卦名、六神、空亡或动爻直接升级为现实事实。
-4. 运行 Skill 校验和 `git diff --check`，并确认没有隐私数据或原始 OCR 文件。
+4. 运行 Skill 校验和 `git diff --check`，并确认没有隐私数据或未授权资料。
