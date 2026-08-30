@@ -18,34 +18,51 @@ OCR 可能有错字、断句问题，也可能误识干支、六亲、符号或�
 
 ## Windows 检索示例
 
-以下命令在 Windows PowerShell 中运行，直接检索用户本地文件；它们不依赖这些文件存在于 GitHub 包中：
+以下 PowerShell 片段可直接复制执行。每本 OCR 都先通过同一个存在性、只读严格 UTF-8 解码门槛，只有成功后才运行对应的 `rg`；命中行不会直接打印，避免把未经脱敏的 OCR 内容复制出来：
 
 ```powershell
+function Invoke-CheckedOcrSearch {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path,
+        [Parameter(Mandatory)]
+        [string]$Pattern
+    )
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        Write-Output '本地文件不存在，无法回查'
+        return
+    }
+
+    try {
+        $utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
+        # ReadAllText 只读文件；严格 UTF-8 解码失败会进入 catch。
+        $null = [System.IO.File]::ReadAllText($Path, $utf8Strict)
+    } catch {
+        Write-Output '本地文件无权限、不可读或无法按严格 UTF-8 读取，无法回查'
+        return
+    }
+
+    Write-Output '文件存在且已按严格 UTF-8 读取；现在才运行 rg'
+    $hits = @(rg -n -S $Pattern -- $Path)
+    if ($LASTEXITCODE -eq 0) {
+        Write-Output ("检索命中 {0} 行；记录命中内容前先脱敏，只保留必要短摘要，不复制整段 OCR 原文。" -f $hits.Count)
+    } elseif ($LASTEXITCODE -eq 1) {
+        Write-Output '未找到匹配内容'
+    } else {
+        Write-Output '检索失败，无法回查'
+    }
+}
+
 $ocrRoot = 'F:\qq文件'
-rg -n -S '月建冲爻|日辰冲爻|日月作用|合的层次|应爻' "$ocrRoot\六爻理法进阶_OCR纯文本.txt"
-rg -n -S '六神|综合取象|长生十二宫' "$ocrRoot\六爻象法进阶上_OCR纯文本.txt"
-rg -n -S '三刑|伏神|旬空|反吟|进退|隔山化爻|六害|八宫卦象' "$ocrRoot\六爻象法进阶下_OCR纯文本.txt"
+Invoke-CheckedOcrSearch -Path (Join-Path $ocrRoot '六爻理法进阶_OCR纯文本.txt') -Pattern '月建冲爻|日辰冲爻|日月作用|合的层次|应爻'
+Invoke-CheckedOcrSearch -Path (Join-Path $ocrRoot '六爻象法进阶上_OCR纯文本.txt') -Pattern '六神|综合取象|长生十二宫'
+Invoke-CheckedOcrSearch -Path (Join-Path $ocrRoot '六爻象法进阶下_OCR纯文本.txt') -Pattern '三刑|伏神|旬空|反吟|进退|隔山化爻|六害|八宫卦象'
 ```
 
 ## 本地资料与脱敏门槛
 
-每次回查前都按同一顺序完成文件存在性、可读性、UTF-8 解码和脱敏检查。只有 `Test-Path` 确认文件存在且 `ReadAllText` 成功按 UTF-8 读取后，才允许运行 `rg`：
-
-```powershell
-$path = 'F:\qq文件\六爻理法进阶_OCR纯文本.txt'
-if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
-    Write-Output '本地文件不存在，无法回查'
-} else {
-    try {
-        $utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
-        $text = [System.IO.File]::ReadAllText($path, $utf8Strict)
-        Write-Output '文件存在且可按 UTF-8 读取；现在才允许检索'
-        rg -n -S '月建冲爻|日辰冲爻|日月作用|合的层次|应爻' -- $path
-    } catch {
-        Write-Output '本地文件无权限、不可读或无法按 UTF-8 读取，无法回查'
-    }
-}
-```
+每次回查前都按同一顺序完成文件存在性、可读性、UTF-8 解码和脱敏检查。上面的统一函数已对三本 OCR 分别执行这些检查；只有 `Test-Path` 确认文件存在且 `ReadAllText` 成功按严格 UTF-8 读取后，才允许运行对应的 `rg`。检查失败时函数立即返回，不运行后续检索。
 
 如果文件不存在、路径不是文件、无权限、读取失败或无法按 UTF-8 读取，必须如实标记“无法回查”，不得声称“已读取”或“已检索到”。检查失败时不运行后续检索，也不凭检索词补造原文、盘面字段或传统依据。
 
