@@ -24,7 +24,8 @@ description: Use when a user provides a Chinese 六爻排盘, six-line divinatio
 - 取用神、六亲和旺衰：读 [strength-useful-god.md](references/strength-useful-god.md)。
 - 动变、冲合刑害与应期：读 [relations-and-timing.md](references/relations-and-timing.md)。
 - 六神、六亲、爻位和卦象的辅助取象：读 [xiangfa-reference.md](references/xiangfa-reference.md)。
-- 本地来源、检索词和 OCR 使用边界：读 [source-index.md](references/source-index.md)。
+- 资料来源、检索词和 OCR 使用边界：读 [source-index.md](references/source-index.md)。
+- 当精炼参考不足、用户要求按原始资料核对或出现术语歧义时，先读 `source-index.md`，再按关键词从 `sources/` 选择性检索对应 OCR；不要默认一次性加载三本全文。
 
 ## 输出合同
 
