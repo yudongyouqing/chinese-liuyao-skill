@@ -1,0 +1,4 @@
+interface:
+  display_name: "六爻解读"
+  short_description: "按理法与象法解读中文六爻排盘，并标注证据与不确定性"
+  default_prompt: "Use $liuyao-skill to interpret this Chinese 六爻 chart with evidence and uncertainty."
